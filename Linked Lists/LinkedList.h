@@ -141,4 +141,60 @@ bool LinkedList<T>::isEmpty() {
 	return (head == NULL);
 	//return (size == 0);
 }
-
+template <class T>
+T LinkedList<T>::get(int pos) {
+	int i;
+	if (this->isEmpty() || pos < 0 || pos > size) {
+		return NULL;
+	}
+	else {
+		Node<T>*curr = head;
+		for (i = 0; i < pos; i++) {
+			curr = curr->getNext();
+		}
+		return curr->getData();
+	}
+}
+template <class T>
+T LinkedList<T>::set(T new_data, int pos) {
+	int k;
+	if (!isEmpty() && pos < size && pos >= 0) {
+		Node<T> *curr = head;
+		for (k = 1; k < pos; k++) {
+			curr = curr->getNext();
+		}
+		//Guarda info anterior
+		Node<T> *aux = new Node<T>(curr->getData());
+		//Setea el dato nuevo e
+		curr->setData(new_data);
+		//Regresa info anterior
+		return aux->getData();
+	}
+}
+template <class T>
+bool LinkedList<T>::change(int fPos, int sPos) {
+	Node<T> *one = head;
+	Node<T> *two = head;
+	int i, j;
+	if (isEmpty() || fPos > size || sPos > size || fPos < 0 || sPos < 0) {
+		return false;
+	}
+	else if (fPos == sPos) {
+		return false;
+	}
+	else {
+		for (i = 0; i < fPos; i++) {
+			one = one->getNext();
+		}
+		for (j = 0; j < sPos; j++) {
+			two = two->getNext();
+		}
+		//changes position
+		Node<T> *aux = new Node<T>(one->getData());
+		//Sets two on one
+		one->setData(two->getData());
+		//Sets one on two
+		two->setData(aux->getData());
+	}
+	return true;
+}
