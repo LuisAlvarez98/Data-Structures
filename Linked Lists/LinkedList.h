@@ -1,10 +1,14 @@
 #pragma once
 #include "Node.h"
+#include <iostream>
+#include <string>
+using namespace std;
 
 template <class T>
 class LinkedList {
 	public:
 		LinkedList();
+		LinkedList(const LinkedList& list);
 		~LinkedList();
 
 		void addFirst(T data);
@@ -12,6 +16,16 @@ class LinkedList {
 		void deleteFirst();
 		void deleteLast();
 		bool isEmpty();
+		T get(int pos);
+		bool change(int fPos, int sPos);
+		T set(T data, int pos);
+		void print();
+		/*Hw 5*/
+		void reverse();
+		bool operator ==(const LinkedList<T> &list);
+		void operator +=(T dato);
+		void operator += (const LinkedList<T> &list);
+		void operator =(const LinkedList<T> &list);
 
 		int getSize();
 		bool add(T data, int pos);
@@ -26,6 +40,23 @@ template <class T>
 LinkedList<T>::LinkedList() {
 	head = NULL;
 	size = 0;
+}
+/*Copy constructor []*/
+template<class T>
+LinkedList<T>::LinkedList(const LinkedList& list) {
+	this->size = list.size;
+	if (list.head != NULL) {
+		Node<T> *curr1 = list.head;
+		head = new Node<T>(curr1->getData());
+		Node<T> *curr2 = head;
+		curr1 = curr1->getNext();
+		while (curr1 != NULL) {
+			curr2->setNext(new Node<T>(curr1->getData()));
+			curr1 = curr1->getNext();
+			curr2 = curr2->getNext();
+		}
+		
+	}
 }
 template <class T>
 LinkedList<T>::~LinkedList() {
@@ -156,45 +187,120 @@ T LinkedList<T>::get(int pos) {
 	}
 }
 template <class T>
-T LinkedList<T>::set(T new_data, int pos) {
-	int k;
-	if (!isEmpty() && pos < size && pos >= 0) {
-		Node<T> *curr = head;
-		for (k = 1; k < pos; k++) {
-			curr = curr->getNext();
-		}
-		//Guarda info anterior
-		Node<T> *aux = new Node<T>(curr->getData());
-		//Setea el dato nuevo e
-		curr->setData(new_data);
-		//Regresa info anterior
-		return aux->getData();
+T LinkedList<T>::set(T data, int pos) {
+	Node<T> *curr = head;
+	for (int i = 0; i < pos; i++) {
+		curr = curr->getNext();
 	}
+	T dataAux = curr->getData();
+	curr->setData(data);
+	return dataAux;
 }
 template <class T>
-bool LinkedList<T>::change(int fPos, int sPos) {
-	Node<T> *one = head;
-	Node<T> *two = head;
-	int i, j;
-	if (isEmpty() || fPos > size || sPos > size || fPos < 0 || sPos < 0) {
-		return false;
+bool LinkedList<T>::change(int pos1, int pos2) {
+	if (pos1 == pos2) {
+		return true;
 	}
-	else if (fPos == sPos) {
+	int posMen = (pos1 < pos2 ? pos1 : pos2);
+	int posMay = (pos1 > pos2 ? pos1 : pos2);
+	Node<T> *curr1 = head;
+	for (int i = 1; i <= posMen; i++){
+		curr1 = curr1->getNext();
+	}
+	Node<T> *curr2 = curr1;
+	for (int i = posMen; i < posMay; i++) {
+		curr2 = curr2->getNext();
+	}
+	T dataAux = curr1->getData();
+	curr1->setData(curr2->getData());
+	curr2->setData(dataAux);
+
+	return true;
+}
+template <class T>
+void LinkedList<T>::print() {
+	Node<T> *curr = head;
+	while (curr != NULL) {
+		cout << curr->getData() << " ";
+		curr = curr->getNext();
+	}
+	cout << endl;
+}
+/*reverse []*/
+template <class T>
+void LinkedList<T>::reverse() {
+	Node<T> *curr1 = head;
+	Node<T> *prev = NULL;
+
+	curr1 = head->getNext();
+	head->setNext(NULL);
+	prev = head;
+	while (curr1 != NULL) {
+		head = curr1;
+		curr1 = curr1->getNext();	
+		head->setNext(prev);
+		prev = head;
+	}
+}
+/*Operator == []*/
+template <class T>
+bool LinkedList<T>::operator == (const LinkedList<T> &list) {
+	int i = 0;
+	if (this->size != list.size) {
 		return false;
 	}
 	else {
-		for (i = 0; i < fPos; i++) {
-			one = one->getNext();
+		Node<T> *curr1 = this->head;
+		Node<T> *curr2 = list.head;
+
+		for (i = 0; i < this->size; i++) {
+			if (curr1->getData() != curr2->getData()) {
+				return false;
+			}
+			curr1 = curr1->getNext();
+			curr2 = curr2->getNext();
 		}
-		for (j = 0; j < sPos; j++) {
-			two = two->getNext();
-		}
-		//changes position
-		Node<T> *aux = new Node<T>(one->getData());
-		//Sets two on one
-		one->setData(two->getData());
-		//Sets one on two
-		two->setData(aux->getData());
+		return true;
 	}
-	return true;
+}
+/*Operator +=(T dato) []*/
+template <class T>
+void LinkedList<T>::operator+=(T dato) {
+	addLast(dato);
+}
+/*Operator += (LinkedList list) []*/
+template <class T>
+void LinkedList<T>::operator+=(const LinkedList<T> &list) {
+	Node<T> *curr1 = head;
+	Node<T> *curr2 = list.head;
+	//Recorre toda la lista hasta llegar a nulo
+	while (curr1->getNext() != NULL) {
+		curr1 = curr1->getNext();
+	}
+	//Recorre toda la lista 2 y crea nodos al final de la lista 1 y aumenta el tamano
+	while (curr2 != NULL) {
+		curr1->setNext(new Node<T>(curr2->getData()));
+		curr1 = curr1->getNext();
+		curr2 = curr2->getNext();
+		size++;
+	}
+
+}
+/*Operator =[]*/
+template <class T>
+void LinkedList<T>::operator=(const LinkedList<T> &list) {
+	deleteAll();
+	this->size = list.size;
+	if (list.head != NULL) {
+		Node<T> *curr1 = list.head;
+		head = new Node<T>(curr1->getData());
+		Node<T> *curr2 = head;
+		curr1 = curr1->getNext();
+		while (curr1 != NULL) {
+			curr2->setNext(new Node<T>(curr1->getData()));
+			curr1 = curr1->getNext();
+			curr2 = curr2->getNext();
+		}
+
+	}
 }
