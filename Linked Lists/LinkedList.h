@@ -20,6 +20,7 @@ class LinkedList {
 		bool change(int fPos, int sPos);
 		T set(T data, int pos);
 		void print();
+		void deleteNode(T data);
 		/*Hw 5*/
 		void reverse();
 		bool operator ==(const LinkedList<T> &list);
@@ -81,6 +82,7 @@ void LinkedList<T>::addLast(T data) {
 		size++;
 	}
 }
+
 template <class T>
 void LinkedList<T>::deleteFirst() {
 	if (!this->isEmpty()) {
@@ -231,7 +233,7 @@ template <class T>
 void LinkedList<T>::reverse() {
 	Node<T> *curr1 = head;
 	Node<T> *prev = NULL;
-
+	int counter = 0;
 	curr1 = head->getNext();
 	head->setNext(NULL);
 	prev = head;
@@ -240,8 +242,11 @@ void LinkedList<T>::reverse() {
 		curr1 = curr1->getNext();	
 		head->setNext(prev);
 		prev = head;
+		cout << counter << "\n";
+		counter++;
 	}
 }
+
 /*Operator == []*/
 template <class T>
 bool LinkedList<T>::operator == (const LinkedList<T> &list) {
