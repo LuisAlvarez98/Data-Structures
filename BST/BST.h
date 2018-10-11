@@ -1,6 +1,9 @@
 #pragma once
 #include "NodeT.h"
 #include <iostream>
+#include <stack>
+#include <queue>
+
 using namespace std;
 class BST {
 	public:
@@ -8,23 +11,70 @@ class BST {
 		~BST();
 		void add(int data);
 		bool search(int data);
+		void ancestors(int data);
 		void remove(int data);
 		void print(int c);
+		//t
+		void printLeaves();
+		int getCount();
+		int height();
+		int whatLevelAmI(int data);
+
 	private:
 		NodeT *root;
 		int howManyChildren(NodeT *r);
 		int pred(NodeT *r);
 		int succ(NodeT *r);
 		void preOrder(NodeT *r);
+		void breadthFirstSearch();
 		void inOrder(NodeT *r);
 		void postOrder(NodeT *r);
 		void liberar(NodeT *r);
+		//t
+		void leaves(NodeT *r);
+		int getHeight(NodeT *r);
+		int count(NodeT *r);
 };
 BST::BST() {
 	root = NULL;
 }
 BST::~BST() {
 	liberar(root);
+}
+//Count nodes
+int BST::getCount() {
+	return count(root);
+}
+int BST::count(NodeT *r) {
+	int counter = 1;
+	if (!r) {
+		return 0;
+	}
+	else {
+		counter += count(r->getLeft());
+		counter += count(r->getRight());
+		return counter;
+	}
+}
+//Prints Leaves
+void BST::printLeaves() {
+	leaves(root);
+	cout << endl;
+}
+//Prints Leaves
+void BST::leaves(NodeT *r) {
+	if (!r) {
+		return;
+	}
+	if (r->getLeft() == NULL && r->getRight() == NULL) {
+		cout << r->getData() << " ";
+	}
+	if (r->getLeft()) {
+		leaves(r->getLeft());
+	}
+	if (r->getRight()) {
+		leaves(r->getRight());
+	}
 }
 int BST::howManyChildren(NodeT *r) {
 	int c = 0;
@@ -70,6 +120,7 @@ void BST::preOrder(NodeT *r) {
 		preOrder(r->getRight());
 	}
 }
+
 void BST::inOrder(NodeT *r) {
 	if (r != NULL) {
 		inOrder(r->getLeft());
@@ -178,6 +229,69 @@ void BST::remove(int data) {
 			break;
 	}
 }
+//WhatLevelAmI
+int BST::whatLevelAmI(int data) {
+	NodeT *curr = root;
+	int level = 0;
+	while (curr != NULL) {
+		if (curr->getData() == data) {
+			return level;
+		}
+		curr = (curr->getData() > data) ? curr->getLeft() : curr->getRight();
+		level++;
+	}
+	return -1;
+}
+//ANCESTORS
+void BST::ancestors(int data) {
+	NodeT *curr = root;
+	stack<int>ancestor;
+	while (curr != NULL) {
+		if (curr->getData() == data) {
+			while (!ancestor.empty()) {
+				cout << ancestor.top() << " ";
+				ancestor.pop();
+			}
+			return;
+		}
+		ancestor.push(curr->getData());
+		curr = (curr->getData() > data) ? curr->getLeft() : curr->getRight();
+	}
+}
+//HEIGHT
+int BST::height() {
+	return getHeight(root);
+}
+//HEIGHT
+int BST::getHeight(NodeT *r) {
+	if (r == NULL) {
+		return 0;
+	}
+	else {
+		if (r->getLeft() == NULL && r->getRight() == NULL) {
+			return 1;
+		}
+		else {
+			return 1 + max(getHeight(r->getLeft()), getHeight(r->getRight()));
+		}
+	}
+}
+//Nivel x Nivel
+void BST::breadthFirstSearch() {
+	NodeT *curr = root;
+	queue<NodeT*> q;
+	q.push(curr);
+	while (!q.empty()) {
+		cout << q.front()->getData() << " ";
+		if (q.front()->getLeft() != NULL) {
+			q.push(q.front()->getLeft());
+		}
+		if (q.front()->getRight() != NULL) {
+			q.push(q.front()->getRight());
+		}
+		q.pop();
+	}
+}
 void BST::print(int c) {
 	switch (c) {
 	case 1: preOrder(root);
@@ -185,6 +299,9 @@ void BST::print(int c) {
 	case 2: inOrder(root);
 		break;
 	case 3: postOrder(root);
+		break;
+	case 5:
+		breadthFirstSearch();
 		break;
 	}
 	cout << endl;
