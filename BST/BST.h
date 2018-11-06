@@ -17,14 +17,17 @@ class BST
 	void remove(int data);
 	void print(int c);
 	int maxWidth();
+	int getWidth(int level);
 	void printLeaves();
 	int getCount();
 	int height();
 	int whatLevelAmI(int data);
+	int descendants(int data);
 	bool operator==(const BST &bTree);
 	bool compare(NodeT *t1, NodeT *t2);
 	void mirror();
 	int nearestRelative(int a, int b);
+	int lowest();
 
   private:
 	NodeT *root;
@@ -41,13 +44,15 @@ class BST
 	int count(NodeT *r);
 	void getMirror(NodeT *r);
 	void copy(NodeT *t1, NodeT *t2);
+	int getLowest(NodeT *r);
+	int countDescendants(NodeT *r);
 };
 //Constructor
 BST::BST()
 {
 	root = NULL;
 }
-//Copy constructor
+//Copy constructor YA
 BST::BST(const BST &cpy)
 {
 	root = new NodeT(cpy.root->getData());
@@ -74,6 +79,23 @@ BST::~BST()
 {
 	liberar(root);
 }
+//YA
+int BST::lowest()
+{
+	return getLowest(root);
+}
+int BST::getLowest(NodeT *r)
+{
+	if (r != NULL)
+	{
+		if (r->getLeft() == NULL)
+		{
+			return r->getData();
+		}
+		getLowest(r->getLeft());
+	}
+}
+//Count de las hojas YA
 int BST::getCount()
 {
 	return count(root);
@@ -197,6 +219,7 @@ void BST::liberar(NodeT *r)
 		delete r;
 	}
 }
+//NPI
 void BST::add(int data)
 {
 	NodeT *father = NULL;
@@ -228,6 +251,7 @@ void BST::add(int data)
 		}
 	}
 }
+//NPI
 void BST::remove(int data)
 {
 	NodeT *curr = root;
@@ -308,7 +332,7 @@ void BST::remove(int data)
 		break;
 	}
 }
-//WhatLevelAmI
+//WhatLevelAmI YA
 int BST::whatLevelAmI(int data)
 {
 	NodeT *curr = root;
@@ -324,7 +348,7 @@ int BST::whatLevelAmI(int data)
 	}
 	return -1;
 }
-//ANCESTORS
+//ANCESTORS YA
 void BST::ancestors(int data)
 {
 	NodeT *curr = root;
@@ -349,7 +373,7 @@ int BST::height()
 {
 	return getHeight(root);
 }
-//HEIGHT
+//HEIGHT height YA
 int BST::getHeight(NodeT *r)
 {
 	if (r == NULL)
@@ -360,7 +384,7 @@ int BST::getHeight(NodeT *r)
 	int der = getHeight(r->getRight());
 	return 1 + (izq > der ? izq : der);
 }
-//Nivel x Nivel
+//Nivel x Nivel YA
 void BST::breadthFirstSearch()
 {
 	NodeT *curr = root;
@@ -380,7 +404,7 @@ void BST::breadthFirstSearch()
 		q.pop();
 	}
 }
-//nearestRelative done
+//nearestRelative ESTUDIAR
 int BST::nearestRelative(int a, int b)
 {
 	NodeT *curr1 = root;
@@ -414,6 +438,39 @@ int BST::nearestRelative(int a, int b)
 	return nR;
 }
 //maxWidth done
+int BST::getWidth(int level)
+{
+	NodeT *curr = root;
+	int lv = 0;
+	if (curr == NULL)
+	{
+		return 0;
+	}
+	queue<NodeT *> q;
+	q.push(curr);
+	while (!q.empty())
+	{
+		int qSize = q.size();
+		if (lv == level)
+		{
+			return qSize;
+		}
+		while (qSize != 0)
+		{
+			if (q.front()->getLeft() != NULL)
+			{
+				q.push(q.front()->getLeft());
+			}
+			if (q.front()->getRight() != NULL)
+			{
+				q.push(q.front()->getRight());
+			}
+			qSize--;
+			q.pop();
+		}
+		lv++;
+	}
+}
 int BST::maxWidth()
 {
 	NodeT *curr = root;
@@ -427,6 +484,7 @@ int BST::maxWidth()
 	while (!q.empty())
 	{
 		int qSize = q.size();
+
 		maxWidth = max(qSize, maxWidth);
 		while (qSize != 0)
 		{
@@ -500,6 +558,28 @@ void BST::getMirror(NodeT *r)
 		r->setLeft(r->getRight());
 		r->setRight(temp);
 	}
+}
+//YA
+int BST::countDescendants(NodeT *r)
+{
+	if (r == NULL)
+	{
+		return 0;
+	}
+	return 1 + countDescendants(r->getLeft()) + countDescendants(r->getRight());
+}
+int BST::descendants(int dato)
+{
+	NodeT *curr = root;
+	if (root == NULL)
+	{
+		return -1;
+	}
+	while (curr != NULL && curr->getData() != dato)
+	{
+		curr = (curr->getData() < dato) ? curr->getRight() : curr->getLeft();
+	}
+	return countDescendants(curr) - 1;
 }
 void BST::print(int c)
 {
